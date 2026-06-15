@@ -36,6 +36,10 @@
                     <span class="icon">📊</span>
                     <span class="label">Reports</span>
                 </button>
+                <button class="nav-btn" data-view="calculator">
+                    <span class="icon">🧮</span>
+                    <span class="label">Calculator</span>
+                </button>
             </nav>
             <div class="sidebar-footer">
                 <div id="live-clock" class="clock"></div>
@@ -106,6 +110,7 @@
                                 <th>Product Name</th>
                                 <th>Category</th>
                                 <th>Price (₹)</th>
+                                <th>Unit</th>
                                 <th>Stock</th>
                                 <th>Actions</th>
                             </tr>
@@ -155,6 +160,70 @@
                     </table>
                 </div>
             </section>
+
+            <!-- Calculator View -->
+            <section id="calculator-view" class="view" style="display: none;">
+                <header class="view-header">
+                    <h2>Calculator</h2>
+                </header>
+                <div class="calculator-layout">
+                    <div class="calculator-container">
+                        <div class="calc-display-wrapper">
+                            <div class="calc-formula" id="calc-formula"></div>
+                            <div class="calc-display-main">
+                                <span id="calc-memory-indicator" class="calc-memory-indicator"></span>
+                                <div class="calc-display" id="calc-display">0</div>
+                            </div>
+                        </div>
+                        <div class="calc-buttons">
+                            <!-- Memory Buttons -->
+                            <button class="calc-btn btn-memory" data-action="memory-clear">MC</button>
+                            <button class="calc-btn btn-memory" data-action="memory-recall">MR</button>
+                            <button class="calc-btn btn-memory" data-action="memory-add">M+</button>
+                            <button class="calc-btn btn-memory" data-action="memory-subtract">M-</button>
+
+                            <!-- Row 2 -->
+                            <button class="calc-btn btn-clear" data-action="clear">AC</button>
+                            <button class="calc-btn btn-operator" data-action="delete">DEL</button>
+                            <button class="calc-btn btn-operator" data-action="percentage">%</button>
+                            <button class="calc-btn btn-operator" data-action="operator" data-val="/">/</button>
+                            
+                            <!-- Row 3 -->
+                            <button class="calc-btn" data-val="7">7</button>
+                            <button class="calc-btn" data-val="8">8</button>
+                            <button class="calc-btn" data-val="9">9</button>
+                            <button class="calc-btn btn-operator" data-action="operator" data-val="*">×</button>
+                            
+                            <!-- Row 4 -->
+                            <button class="calc-btn" data-val="4">4</button>
+                            <button class="calc-btn" data-val="5">5</button>
+                            <button class="calc-btn" data-val="6">6</button>
+                            <button class="calc-btn btn-operator" data-action="operator" data-val="-">-</button>
+                            
+                            <!-- Row 5 -->
+                            <button class="calc-btn" data-val="1">1</button>
+                            <button class="calc-btn" data-val="2">2</button>
+                            <button class="calc-btn" data-val="3">3</button>
+                            <button class="calc-btn btn-operator" data-action="operator" data-val="+">+</button>
+                            
+                            <!-- Row 6 -->
+                            <button class="calc-btn" data-action="toggle-sign">±</button>
+                            <button class="calc-btn" data-val="0">0</button>
+                            <button class="calc-btn" data-val=".">.</button>
+                            <button class="calc-btn btn-equal" data-action="calculate">=</button>
+                        </div>
+                    </div>
+                    <aside class="calc-history-container">
+                        <div class="history-header">
+                            <h3>History</h3>
+                            <button id="clear-calc-history" class="btn-text">Clear</button>
+                        </div>
+                        <div class="calc-history-items" id="calc-history-items">
+                            <!-- History will be injected here -->
+                        </div>
+                    </aside>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -177,34 +246,7 @@
                     <div class="form-group">
                         <label>Category</label>
                         <select id="prod-category" required>
-                            <option value="Rice">Rice</option>
-                            <option value="Dals">Dals</option>
-                            <option value="Oil">Oil</option>
-                            <option value="Salt">Salt</option>
-                            <option value="Sugar & Sweeteners">Sugar & Sweeteners</option>
-                            <option value="Semiya">Semiya</option>
-                            <option value="Pasta">Pasta</option>
-                            <option value="Noodles">Noodles</option>
-                            <option value="Tea Powder">Tea Powder</option>
-                            <option value="Coffee Powder">Coffee Powder</option>
-                            <option value="Masala">Masala</option>
-                            <option value="Pickles">Pickles</option>
-                            <option value="Sauces">Sauces</option>
-                            <option value="Biscuits">Biscuits</option>
-                            <option value="Packaged Food">Packaged Food</option>
-                            <option value="Ghee">Ghee</option>
-                            <option value="Nuts">Nuts</option>
-                            <option value="Shampoo">Shampoo</option>
-                            <option value="Detergent Powder">Detergent Powder</option>
-                            <option value="Liquid Detergent">Liquid Detergent</option>
-                            <option value="Detergent Soap">Detergent Soap</option>
-                            <option value="Body Soap">Body Soap</option>
-                            <option value="Dishwash Soap">Dishwash Soap</option>
-                            <option value="Dishwash Liquid">Dishwash Liquid</option>
-                            <option value="Nutritional Drink">Nutritional Drink</option>
-                            <option value="Shaving Blade">Shaving Blade</option>
-                            <option value="Grains & Pulses">Grains & Pulses</option>
-                            <option value="Chocolates">Chocolates</option>
+                            <!-- Dynamically populated from inventory.js -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -218,6 +260,21 @@
                         <input type="number" id="prod-stock" required>
                     </div>
                     <div class="form-group">
+                        <label>Unit</label>
+                        <select id="prod-unit" required>
+                            <option value="kg">Kg</option>
+                            <option value="g">g</option>
+                            <option value="L">L</option>
+                            <option value="ml">ml</option>
+                            <option value="pcs">pcs</option>
+                            <option value="packet">packet</option>
+                            <option value="box">box</option>
+                            <option value="dozen">dozen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" style="grid-template-columns: 1fr;">
+                    <div class="form-group">
                         <label>Image URL (Optional)</label>
                         <input type="text" id="prod-image" placeholder="https://unsplash.com/...">
                     </div>
@@ -230,12 +287,29 @@
         </div>
     </div>
 
+    <!-- Receipt View Modal -->
+    <div id="receipt-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <h3>Transaction Receipt</h3>
+            <div id="receipt-modal-body" style="margin: 20px 0; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 400px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; color: #1e293b; line-height: 1.4;">
+                <!-- Receipt details will be injected here -->
+            </div>
+            <div class="modal-actions" style="justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-secondary" onclick="closeModal('receipt-modal')">Close</button>
+                <button type="button" class="btn-secondary" id="print-receipt-btn">🖨️ Print</button>
+                <button type="button" class="btn-primary" id="download-pdf-btn">📥 Download PDF</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="data.js"></script>
     <script src="pos.js"></script>
     <script src="inventory.js"></script>
     <script src="reports.js"></script>
+    <script src="calculator.js"></script>
     <script src="app.js"></script>
 </body>
 

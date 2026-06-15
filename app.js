@@ -29,16 +29,25 @@ function initNavigation() {
 
 function showView(viewId) {
     const views = document.querySelectorAll('.view');
-    views.forEach(v => v.style.display = 'none');
+    views.forEach(v => {
+        v.classList.remove('active');
+        v.style.display = 'none';
+    });
     
     const targetView = document.getElementById(`${viewId}-view`);
     if (targetView) {
         targetView.style.display = 'block';
         
+        // Trigger reflow for animation
+        void targetView.offsetWidth;
+        
+        targetView.classList.add('active');
+        
         // Trigger view-specific initialization
         if (viewId === 'pos') initPOS();
         if (viewId === 'inventory') initInventory();
         if (viewId === 'reports') initReports();
+        if (viewId === 'calculator') initCalculator();
     }
 }
 
@@ -85,17 +94,24 @@ window.showToast = (message, type = 'success') => {
  * Utility: Modal System
  */
 window.openModal = (modalId) => {
-    document.getElementById(modalId).style.display = 'flex';
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'flex';
+    void modal.offsetWidth;
+    modal.classList.add('active');
 };
 
 window.closeModal = (modalId) => {
-    document.getElementById(modalId).style.display = 'none';
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
 };
 
 // Close modal when clicking outside
 window.onclick = (event) => {
     if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
+        window.closeModal(event.target.id);
     }
 };
 

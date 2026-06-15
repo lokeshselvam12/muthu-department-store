@@ -5,6 +5,7 @@
 let editingProductId = null;
 
 function initInventory() {
+    populateCategorySelect();
     renderInventoryTable();
     
     // Add Product button
@@ -37,14 +38,15 @@ function renderInventoryTable() {
             </td>
             <td><span class="category-tab">${p.category}</span></td>
             <td>₹${p.price.toFixed(2)}</td>
+            <td><span class="unit-badge" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; color: #64748b;">${p.unit || 'kg'}</span></td>
             <td>
                 <span style="color: ${p.stock < 10 ? 'var(--danger)' : 'inherit'}; font-weight: ${p.stock < 10 ? '700' : 'normal'}">
-                    ${p.stock}
+                    ${Number.isInteger(p.stock) ? p.stock : p.stock.toFixed(2)}
                 </span>
             </td>
             <td>
-                <button class="btn-text" style="color: var(--primary); margin-right: 12px;" onclick="editProduct(${p.id})">Edit</button>
-                <button class="btn-text" onclick="deleteProduct(${p.id})">Delete</button>
+                <button class="btn-text" style="color: var(--primary); margin-right: 12px;" onclick="editProduct('${p.id}')">Edit</button>
+                <button class="btn-text" onclick="deleteProduct('${p.id}')">Delete</button>
             </td>
         </tr>
     `).join('');
@@ -61,6 +63,7 @@ window.editProduct = (id) => {
     document.getElementById('prod-category').value = product.category;
     document.getElementById('prod-price').value = product.price;
     document.getElementById('prod-stock').value = product.stock;
+    document.getElementById('prod-unit').value = product.unit || 'kg';
     document.getElementById('prod-image').value = product.image || '';
     
     openModal('product-modal');
@@ -70,16 +73,16 @@ function handleProductSubmit(e) {
     e.preventDefault();
     
     const productData = {
-        id: editingProductId,
         brand: document.getElementById('prod-brand').value,
         name: document.getElementById('prod-name').value,
         category: document.getElementById('prod-category').value,
         price: parseFloat(document.getElementById('prod-price').value),
-        stock: parseInt(document.getElementById('prod-stock').value),
+        stock: parseFloat(document.getElementById('prod-stock').value),
+        unit: document.getElementById('prod-unit').value,
         image: document.getElementById('prod-image').value
     };
 
-    window.store.saveProduct(productData);
+    window.store.saveProduct(productData, editingProductId);
     closeModal('product-modal');
     renderInventoryTable();
     showToast('Product saved successfully!', 'success');
@@ -92,3 +95,13 @@ window.deleteProduct = (id) => {
         showToast('Product deleted.', 'success');
     }
 };
+
+function populateCategorySelect() {
+    const categories = window.store.getCategories();
+    const select = document.getElementById('prod-category');
+    if (!select) return;
+
+    select.innerHTML = categories.map(cat => `
+        <option value="${cat.name}">${cat.name}</option>
+    `).join('');
+}

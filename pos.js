@@ -33,36 +33,10 @@ function initPOS() {
 }
 
 function renderCategories() {
+    const storeCategories = window.store.getCategories();
     const categories = [
         { name: 'All', icon: '🛍️' },
-        { name: 'Rice', icon: '🌾' },
-        { name: 'Dals', icon: '🥣' },
-        { name: 'Oil', icon: '🍾' },
-        { name: 'Salt', icon: '🧂' },
-        { name: 'Sugar & Sweeteners', icon: '🍯' },
-        { name: 'Semiya', icon: '🍜' },
-        { name: 'Pasta', icon: '🍝' },
-        { name: 'Noodles', icon: '🍜' },
-        { name: 'Tea Powder', icon: '🍵' },
-        { name: 'Coffee Powder', icon: '☕' },
-        { name: 'Masala', icon: '🌶️' },
-        { name: 'Pickles', icon: '🥒' },
-        { name: 'Sauces', icon: '🥫' },
-        { name: 'Biscuits', icon: '🍪' },
-        { name: 'Packaged Food', icon: '🍱' },
-        { name: 'Ghee', icon: '🧈' },
-        { name: 'Nuts', icon: '🥜' },
-        { name: 'Shampoo', icon: '🧴' },
-        { name: 'Detergent Powder', icon: '🧺' },
-        { name: 'Liquid Detergent', icon: '🧴' },
-        { name: 'Detergent Soap', icon: '🧼' },
-        { name: 'Body Soap', icon: '🧼' },
-        { name: 'Dishwash Soap', icon: '🧽' },
-        { name: 'Dishwash Liquid', icon: '🧽' },
-        { name: 'Nutritional Drink', icon: '🥛' },
-        { name: 'Shaving Blade', icon: '🪒' },
-        { name: 'Grains & Pulses', icon: '🌾' },
-        { name: 'Chocolates', icon: '🍫' }
+        ...storeCategories
     ];
     const container = document.getElementById('category-tabs');
 
@@ -86,25 +60,61 @@ function renderProducts(searchTerm = '') {
     const container = document.getElementById('product-grid');
 
     const filtered = products.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const query = searchTerm.toLowerCase();
+        const matchesSearch = p.name.toLowerCase().includes(query) || 
+                              (p.brand && p.brand.toLowerCase().includes(query)) ||
+                              p.category.toLowerCase().includes(query);
         const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
         return matchesSearch && matchesCat;
     });
 
-    container.innerHTML = filtered.map(p => `
-        <div class="product-card" onclick="addToCart(${p.id})">
+    const renderCard = p => {
+        const isLoose = p.category === 'Loose Items';
+        return `
+        <div class="product-card" onclick="addToCart('${p.id}')">
             ${p.image ?
             `<img src="${p.image}" class="product-img" alt="${p.name}">` :
             `<div class="product-image-placeholder">${p.icon}</div>`
         }
             <div class="product-info">
-                <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${p.brand || 'Generic'}</span>
+                <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${p.subCategory ? p.subCategory + ' • ' : ''}${p.brand || 'Generic'}</span>
                 <h4>${p.name}</h4>
                 <div class="price">₹${p.price.toFixed(2)}</div>
                 <div class="stock">${p.stock} in stock</div>
+                ${isLoose ? `
+                <div class="weight-btns" style="margin-top: 8px;" onclick="event.stopPropagation()">
+                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.25)">1/4</button>
+                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.5)">1/2</button>
+                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.75)">3/4</button>
+                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 1)">1</button>
+                </div>
+                ` : ''}
             </div>
         </div>
-    `).join('');
+    `;
+    };
+
+    if (selectedCategory === 'Loose Items' && !searchTerm) {
+        const groups = {};
+        filtered.forEach(p => {
+            const sub = p.subCategory || 'Other';
+            if (!groups[sub]) groups[sub] = [];
+            groups[sub].push(p);
+        });
+
+        let html = '';
+        for (const [sub, items] of Object.entries(groups)) {
+            html += `
+                <div style="grid-column: 1 / -1; margin-top: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">
+                    <h3 style="color: var(--primary); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">${sub}</h3>
+                </div>
+            `;
+            html += items.map(renderCard).join('');
+        }
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = filtered.map(renderCard).join('');
+    }
 }
 
 window.addToCart = (productId) => {
@@ -128,15 +138,81 @@ window.addToCart = (productId) => {
     renderCart();
 };
 
+window.addToCartWithOptions = (productId, qty) => {
+    const product = window.store.getProducts().find(p => p.id === productId);
+    if (!product || product.stock <= 0) {
+        showToast('Item out of stock!', 'error');
+        return;
+    }
+
+    const cartItem = cart.find(item => item.id === productId);
+    if (cartItem) {
+        if (qty <= product.stock) {
+            cartItem.qty = qty;
+        } else {
+            showToast('Max stock reached!', 'error');
+        }
+    } else {
+        cart.push({ ...product, qty: qty });
+    }
+
+    renderCart();
+};
+
 window.updateQty = (id, delta) => {
     const item = cart.find(i => i.id === id);
     if (item) {
-        item.qty += delta;
-        if (item.qty <= 0) {
+        const product = window.store.getProducts().find(p => p.id === id);
+        const isLoose = product && product.category === 'Loose Items';
+        const newQty = isLoose ? (item.qty + delta) : Math.round(item.qty + delta);
+        if (newQty <= 0) {
             cart = cart.filter(i => i.id !== id);
+        } else if (product && newQty > product.stock) {
+            showToast('Max stock reached!', 'error');
+        } else {
+            item.qty = newQty;
         }
     }
     renderCart();
+};
+
+window.setQty = (id, qty) => {
+    const item = cart.find(i => i.id === id);
+    if (item) {
+        const product = window.store.getProducts().find(p => p.id === id);
+        const newQty = parseFloat(qty);
+        if (isNaN(newQty) || newQty <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        } else if (product && newQty > product.stock) {
+            showToast('Max stock reached!', 'error');
+            item.qty = product.stock;
+        } else {
+            item.qty = newQty;
+        }
+    }
+    renderCart();
+};
+
+window.handleQtyInput = (id, value) => {
+    const item = cart.find(i => i.id === id);
+    if (item) {
+        const product = window.store.getProducts().find(p => p.id === id);
+        const newQty = parseFloat(value);
+        if (!isNaN(newQty) && newQty > 0) {
+            if (product && newQty > product.stock) {
+                showToast('Max stock reached!', 'error');
+                item.qty = product.stock;
+            } else {
+                item.qty = newQty;
+            }
+            updateTotals();
+            
+            const lineTotal = document.getElementById(`line-total-${id}`);
+            if (lineTotal) lineTotal.textContent = `₹${(item.price * item.qty).toFixed(2)}`;
+            const lineDetail = document.getElementById(`line-detail-${id}`);
+            if (lineDetail) lineDetail.textContent = `Qty: ${item.qty}`;
+        }
+    }
 };
 
 function renderCart() {
@@ -148,19 +224,40 @@ function renderCart() {
         return;
     }
 
-    container.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <div class="cart-item-info">
-                <h5>${item.name}</h5>
-                <span>₹${item.price} x ${item.qty}</span>
+    container.innerHTML = cart.map(item => {
+        const lineTotal = (item.price * item.qty).toFixed(2);
+        return `
+        <div class="cart-item-block">
+            <div class="cart-item-top">
+                <div class="cart-item-info">
+                    <h5>${item.name}</h5>
+                    <span id="line-detail-${item.id}">Qty: ${item.qty}</span>
+                </div>
+                <div class="cart-item-total">
+                    <span id="line-total-${item.id}" class="line-total">₹${lineTotal}</span>
+                    <button class="cart-remove-btn" onclick="setQty('${item.id}', 0)" title="Remove">✕</button>
+                </div>
             </div>
-            <div class="cart-item-qty">
-                <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
-                <span>${item.qty}</span>
-                <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+            <div class="cart-item-controls">
+                ${item.category === 'Loose Items' ? `
+                <div class="weight-btns">
+                    <button class="weight-btn ${item.qty === 0.25 ? 'active' : ''}" onclick="setQty('${item.id}', 0.25)">¼</button>
+                    <button class="weight-btn ${item.qty === 0.5 ? 'active' : ''}" onclick="setQty('${item.id}', 0.5)">½</button>
+                    <button class="weight-btn ${item.qty === 0.75 ? 'active' : ''}" onclick="setQty('${item.id}', 0.75)">¾</button>
+                    <button class="weight-btn ${item.qty === 1 ? 'active' : ''}" onclick="setQty('${item.id}', 1)">1</button>
+                </div>
+                ` : ''}
+                <div class="qty-stepper">
+                    <button class="qty-btn" onclick="updateQty('${item.id}', -1)">−</button>
+                    <input type="number" class="qty-input" value="${item.qty}" min="0.01" step="any"
+                        onchange="handleQtyInput('${item.id}', this.value)"
+                        oninput="handleQtyInput('${item.id}', this.value)">
+                    <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+                </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     updateTotals();
 }
@@ -217,29 +314,29 @@ function handleCheckout() {
                         width: 280px; 
                         margin: 0 auto; 
                         color: #000; 
-                        padding: 10px; 
-                        font-weight: bold;
-                        font-size: 14px;
-                        line-height: 1.2;
+                        padding: 8px; 
+                        font-size: 11px;
+                        line-height: 1.3;
                         display: flex;
                         flex-direction: column;
-                        align-items: center;
                     }
                     .center { text-align: center; }
-                    .header { width: 100%; }
-                    .header h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
-                    .header p { margin: 1px 0; font-size: 13px; }
-                    .divider { border-top: 1px dashed #000; margin: 6px 0; width: 100%; }
+                    .header { width: 100%; margin-bottom: 5px; }
+                    .header h1 { margin: 0; font-size: 14px; text-transform: uppercase; }
+                    .header p { margin: 1px 0; font-size: 10px; }
+                    .divider { border-top: 1px dashed #000; margin: 5px 0; width: 100%; }
                     
-                    .meta-row { display: flex; justify-content: space-between; font-size: 12px; text-transform: uppercase; margin: 3px 0; width: 100%; }
+                    .meta-row { display: flex; justify-content: space-between; font-size: 10px; text-transform: uppercase; margin: 2px 0; width: 100%; }
                     
-                    .item-row { display: flex; width: 100%; font-size: 13px; margin-bottom: 4px; align-items: flex-start; gap: 8px; }
-                    .col-name { width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-                    .col-qty { width: 45px; text-align: center; }
-                    .col-amt { width: 75px; text-align: right; }
+                    .item-container { width: 100%; }
+                    .item-row { display: flex; justify-content: space-between; width: 100%; font-weight: bold; margin-top: 4px; }
+                    .item-name { width: 70%; word-wrap: break-word; }
+                    .item-price { width: 30%; text-align: right; }
+                    .item-sub { font-size: 9px; margin-bottom: 4px; color: #333; }
 
-                    .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin: 10px 0; padding: 5px 0; width: 100%; }
-                    .footer { font-size: 13px; margin-top: 15px; padding-top: 10px; width: 100%; }
+                    .total-section { width: 100%; margin-top: 5px; }
+                    .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; padding: 4px 0; }
+                    .footer { font-size: 10px; margin-top: 10px; width: 100%; }
                 </style>
             </head>
             <body>
@@ -250,30 +347,41 @@ function handleCheckout() {
                 </div>
                 <div class="divider"></div>
                 <div class="meta-row">
-                    <span>CUST: ${(order.customerName || 'GUEST')}</span>
+                    <span>BILL NO: ${billNo}</span>
                     <span>${formattedDate}</span>
                 </div>
-                <div class="divider"></div>
-                <div class="item-row" style="font-size: 11px;">
-                    <span class="col-name">ITEM NAME</span>
-                    <span class="col-qty">QTY</span>
-                    <span class="col-amt">AMOUNT</span>
+                <div class="meta-row">
+                    <span>CUST: ${(order.customerName || 'GUEST')}</span>
                 </div>
                 <div class="divider"></div>
-                ${cart.map(item => `
-                    <div class="item-row">
-                        <span class="col-name">${item.name}</span>
-                        <span class="col-qty">${item.qty}</span>
-                        <span class="col-amt">${(item.price * item.qty).toFixed(2)}</span>
+                <div class="item-container">
+                    <div class="item-row" style="font-size: 10px; margin-bottom: 2px;">
+                        <span>DESCRIPTION</span>
+                        <span>AMOUNT</span>
                     </div>
-                `).join('')}
+                    <div class="divider"></div>
+                    ${cart.map(item => `
+                        <div class="item-group">
+                            <div class="item-row">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-price">${(item.price * item.qty).toFixed(2)}</span>
+                            </div>
+                            <div class="item-sub">
+                                Qty: ${item.qty}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
                 <div class="divider"></div>
-                <div class="total-row">
-                    <span>GRAND TOTAL:</span>
-                    <span>₹${total.toFixed(2)}</span>
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>GRAND TOTAL:</span>
+                        <span>₹${total.toFixed(2)}</span>
+                    </div>
                 </div>
                 <div class="divider"></div>
                 <div class="footer center">
+                    <p>ITEMS: ${cart.length}</p>
                     <p>THANK YOU FOR SHOPPING!</p>
                 </div>
                 <script>
