@@ -33,11 +33,24 @@ function initPOS() {
 }
 
 function renderCategories() {
+    const products = window.store.getProducts();
     const storeCategories = window.store.getCategories();
+
+    // Get unique categories from current products
+    const uniqueCategoryNames = [...new Set(products.map(p => p.category))].filter(Boolean);
+
     const categories = [
-        { name: 'All', icon: '🛍️' },
-        ...storeCategories
+        { name: 'All', icon: '🛍️' }
     ];
+
+    uniqueCategoryNames.forEach(name => {
+        const found = storeCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
+        categories.push({
+            name: name,
+            icon: found ? found.icon : '📦'
+        });
+    });
+
     const container = document.getElementById('category-tabs');
 
     container.innerHTML = categories.map(cat => `
@@ -61,40 +74,29 @@ function renderProducts(searchTerm = '') {
 
     const filtered = products.filter(p => {
         const query = searchTerm.toLowerCase();
-        const matchesSearch = p.name.toLowerCase().includes(query) || 
-                              (p.brand && p.brand.toLowerCase().includes(query)) ||
-                              p.category.toLowerCase().includes(query);
+        const matchesSearch = p.name.toLowerCase().includes(query) ||
+            p.category.toLowerCase().includes(query);
         const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
         return matchesSearch && matchesCat;
     });
 
     const renderCard = p => {
-        const isLoose = p.category === 'Loose Items';
         return `
         <div class="product-card" onclick="addToCart('${p.id}')">
             ${p.image ?
-            `<img src="${p.image}" class="product-img" alt="${p.name}">` :
-            `<div class="product-image-placeholder">${p.icon}</div>`
-        }
+                `<img src="${p.image}" class="product-img" alt="${p.name}">` :
+                `<div class="product-image-placeholder">${p.icon}</div>`
+            }
             <div class="product-info">
-                <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${p.subCategory ? p.subCategory + ' • ' : ''}${p.brand || 'Generic'}</span>
+                <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${p.subCategory || ''}</span>
                 <h4>${p.name}</h4>
                 <div class="price">₹${p.price.toFixed(2)}</div>
-                <div class="stock">${p.stock} in stock</div>
-                ${isLoose ? `
-                <div class="weight-btns" style="margin-top: 8px;" onclick="event.stopPropagation()">
-                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.25)">1/4</button>
-                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.5)">1/2</button>
-                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 0.75)">3/4</button>
-                    <button class="weight-btn" onclick="addToCartWithOptions('${p.id}', 1)">1</button>
-                </div>
-                ` : ''}
             </div>
         </div>
     `;
     };
 
-    if (selectedCategory === 'Loose Items' && !searchTerm) {
+    if ((selectedCategory === 'Loose Items KG' || selectedCategory === 'Loose Items Grams') && !searchTerm) {
         const groups = {};
         filtered.forEach(p => {
             const sub = p.subCategory || 'Other';
@@ -119,18 +121,11 @@ function renderProducts(searchTerm = '') {
 
 window.addToCart = (productId) => {
     const product = window.store.getProducts().find(p => p.id === productId);
-    if (!product || product.stock <= 0) {
-        showToast('Item out of stock!', 'error');
-        return;
-    }
+    if (!product) return;
 
     const cartItem = cart.find(item => item.id === productId);
     if (cartItem) {
-        if (cartItem.qty < product.stock) {
-            cartItem.qty++;
-        } else {
-            showToast('Max stock reached!', 'error');
-        }
+        cartItem.qty++;
     } else {
         cart.push({ ...product, qty: 1 });
     }
@@ -140,18 +135,11 @@ window.addToCart = (productId) => {
 
 window.addToCartWithOptions = (productId, qty) => {
     const product = window.store.getProducts().find(p => p.id === productId);
-    if (!product || product.stock <= 0) {
-        showToast('Item out of stock!', 'error');
-        return;
-    }
+    if (!product) return;
 
     const cartItem = cart.find(item => item.id === productId);
     if (cartItem) {
-        if (qty <= product.stock) {
-            cartItem.qty = qty;
-        } else {
-            showToast('Max stock reached!', 'error');
-        }
+        cartItem.qty = qty;
     } else {
         cart.push({ ...product, qty: qty });
     }
@@ -163,12 +151,10 @@ window.updateQty = (id, delta) => {
     const item = cart.find(i => i.id === id);
     if (item) {
         const product = window.store.getProducts().find(p => p.id === id);
-        const isLoose = product && product.category === 'Loose Items';
+        const isLoose = product && product.category === 'Loose Items KG';
         const newQty = isLoose ? (item.qty + delta) : Math.round(item.qty + delta);
         if (newQty <= 0) {
             cart = cart.filter(i => i.id !== id);
-        } else if (product && newQty > product.stock) {
-            showToast('Max stock reached!', 'error');
         } else {
             item.qty = newQty;
         }
@@ -179,13 +165,9 @@ window.updateQty = (id, delta) => {
 window.setQty = (id, qty) => {
     const item = cart.find(i => i.id === id);
     if (item) {
-        const product = window.store.getProducts().find(p => p.id === id);
         const newQty = parseFloat(qty);
         if (isNaN(newQty) || newQty <= 0) {
             cart = cart.filter(i => i.id !== id);
-        } else if (product && newQty > product.stock) {
-            showToast('Max stock reached!', 'error');
-            item.qty = product.stock;
         } else {
             item.qty = newQty;
         }
@@ -196,21 +178,15 @@ window.setQty = (id, qty) => {
 window.handleQtyInput = (id, value) => {
     const item = cart.find(i => i.id === id);
     if (item) {
-        const product = window.store.getProducts().find(p => p.id === id);
         const newQty = parseFloat(value);
         if (!isNaN(newQty) && newQty > 0) {
-            if (product && newQty > product.stock) {
-                showToast('Max stock reached!', 'error');
-                item.qty = product.stock;
-            } else {
-                item.qty = newQty;
-            }
+            item.qty = newQty;
             updateTotals();
-            
+
             const lineTotal = document.getElementById(`line-total-${id}`);
             if (lineTotal) lineTotal.textContent = `₹${(item.price * item.qty).toFixed(2)}`;
             const lineDetail = document.getElementById(`line-detail-${id}`);
-            if (lineDetail) lineDetail.textContent = `Qty: ${item.qty}`;
+            if (lineDetail) lineDetail.textContent = `Qty: ${item.qty} ${item.unit || ''}`;
         }
     }
 };
@@ -231,7 +207,7 @@ function renderCart() {
             <div class="cart-item-top">
                 <div class="cart-item-info">
                     <h5>${item.name}</h5>
-                    <span id="line-detail-${item.id}">Qty: ${item.qty}</span>
+                    <span id="line-detail-${item.id}">Qty: ${item.qty} ${item.unit || ''}</span>
                 </div>
                 <div class="cart-item-total">
                     <span id="line-total-${item.id}" class="line-total">₹${lineTotal}</span>
@@ -239,12 +215,22 @@ function renderCart() {
                 </div>
             </div>
             <div class="cart-item-controls">
-                ${item.category === 'Loose Items' ? `
+                ${item.category === 'Loose Items KG' ? `
                 <div class="weight-btns">
                     <button class="weight-btn ${item.qty === 0.25 ? 'active' : ''}" onclick="setQty('${item.id}', 0.25)">¼</button>
                     <button class="weight-btn ${item.qty === 0.5 ? 'active' : ''}" onclick="setQty('${item.id}', 0.5)">½</button>
                     <button class="weight-btn ${item.qty === 0.75 ? 'active' : ''}" onclick="setQty('${item.id}', 0.75)">¾</button>
                     <button class="weight-btn ${item.qty === 1 ? 'active' : ''}" onclick="setQty('${item.id}', 1)">1</button>
+                    <button class="weight-btn ${item.qty === 5 ? 'active' : ''}" onclick="setQty('${item.id}', 5)">5</button>
+                </div>
+                ` : ''}
+                ${item.category === 'Loose Items Grams' ? `
+                <div class="weight-btns">
+                    <button class="weight-btn ${item.qty === 0.01 ? 'active' : ''}" onclick="setQty('${item.id}', 0.01)">10g</button>
+                    <button class="weight-btn ${item.qty === 0.025 ? 'active' : ''}" onclick="setQty('${item.id}', 0.025)">25g</button>
+                    <button class="weight-btn ${item.qty === 0.05 ? 'active' : ''}" onclick="setQty('${item.id}', 0.05)">50g</button>
+                    <button class="weight-btn ${item.qty === 0.1 ? 'active' : ''}" onclick="setQty('${item.id}', 0.1)">100g</button>
+                    <button class="weight-btn ${item.qty === 0.25 ? 'active' : ''}" onclick="setQty('${item.id}', 0.25)">250g</button>
                 </div>
                 ` : ''}
                 <div class="qty-stepper">
@@ -309,34 +295,40 @@ function handleCheckout() {
                 <title>Bill ${billNo}</title>
                 <style>
                     @page { margin: 0; }
+                    * { box-sizing: border-box; }
                     body { 
                         font-family: 'Courier New', Courier, monospace; 
-                        width: 280px; 
+                        width: 100%;
+                        max-width: 400px; /* limits width for standard 80mm/58mm printers, but dynamically fills smaller/larger space */
                         margin: 0 auto; 
                         color: #000; 
-                        padding: 8px; 
-                        font-size: 11px;
-                        line-height: 1.3;
+                        padding: 12px; 
+                        font-size: 12px;
+                        line-height: 1.4;
                         display: flex;
                         flex-direction: column;
+                        font-weight: bold; /* Make texts bold as requested */
                     }
                     .center { text-align: center; }
-                    .header { width: 100%; margin-bottom: 5px; }
-                    .header h1 { margin: 0; font-size: 14px; text-transform: uppercase; }
-                    .header p { margin: 1px 0; font-size: 10px; }
-                    .divider { border-top: 1px dashed #000; margin: 5px 0; width: 100%; }
+                    .header { width: 100%; margin-bottom: 8px; }
+                    .header h1 { margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; }
+                    .header p { margin: 2px 0; font-size: 11px; }
+                    .divider { border-top: 2px dashed #000; margin: 8px 0; width: 100%; }
                     
-                    .meta-row { display: flex; justify-content: space-between; font-size: 10px; text-transform: uppercase; margin: 2px 0; width: 100%; }
+                    .meta-row { display: flex; justify-content: space-between; font-size: 11px; text-transform: uppercase; margin: 3px 0; width: 100%; font-weight: bold; }
                     
                     .item-container { width: 100%; }
-                    .item-row { display: flex; justify-content: space-between; width: 100%; font-weight: bold; margin-top: 4px; }
+                    .item-row { display: flex; justify-content: space-between; width: 100%; font-weight: bold; margin-top: 6px; font-size: 12px; }
                     .item-name { width: 70%; word-wrap: break-word; }
                     .item-price { width: 30%; text-align: right; }
-                    .item-sub { font-size: 9px; margin-bottom: 4px; color: #333; }
+                    .item-sub { font-size: 10px; margin-bottom: 6px; color: #000; font-weight: bold; }
 
-                    .total-section { width: 100%; margin-top: 5px; }
-                    .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; padding: 4px 0; }
-                    .footer { font-size: 10px; margin-top: 10px; width: 100%; }
+                    .total-section { width: 100%; margin-top: 8px; }
+                    .total-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 16px; padding: 6px 0; }
+                    .footer { font-size: 11px; margin-top: 15px; width: 100%; font-weight: bold; }
+                    @media print {
+                        body { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px; }
+                    }
                 </style>
             </head>
             <body>
@@ -367,7 +359,7 @@ function handleCheckout() {
                                 <span class="item-price">${(item.price * item.qty).toFixed(2)}</span>
                             </div>
                             <div class="item-sub">
-                                Qty: ${item.qty}
+                                Qty: ${item.qty} ${item.unit || ''}
                             </div>
                         </div>
                     `).join('')}

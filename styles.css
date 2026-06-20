@@ -1106,3 +1106,82 @@ h1, h2, h3, .logo-icon {
     transform: scale(1.1);
 }
 
+/* Premium Inventory Redesign Styles */
+#inventory-view .data-table {
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+#inventory-view tbody tr {
+    transition: all 0.25s ease;
+}
+
+#inventory-view tbody tr:hover {
+    background-color: rgba(99, 102, 241, 0.04);
+}
+
+.product-count-badge {
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+    letter-spacing: 0.02em;
+    animation: pulseBadge 2s infinite alternate;
+}
+
+@keyframes pulseBadge {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.03); }
+}
+
+.btn-action-edit, .btn-action-delete {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-action-edit {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary);
+    border-color: rgba(99, 102, 241, 0.15);
+}
+
+.btn-action-edit:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.btn-action-delete {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.15);
+    margin-left: 8px;
+}
+
+.btn-action-delete:hover {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.inventory-table-container {
+    margin-top: 10px;
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+

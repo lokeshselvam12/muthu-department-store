@@ -99,19 +99,26 @@
             <!-- Inventory View -->
             <section id="inventory-view" class="view" style="display: none;">
                 <header class="view-header">
-                    <h2>Inventory Management</h2>
-                    <button class="btn-primary" id="add-product-btn">+ Add Product</button>
+                    <div class="view-title-area" style="display: flex; align-items: center; gap: 16px;">
+                        <h2>Inventory Management</h2>
+                        <span class="product-count-badge" id="inventory-product-count" style="background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">0 Products</span>
+                    </div>
+                    <div class="inventory-controls" style="display: flex; align-items: center; gap: 16px;">
+                        <div class="search-bar">
+                            <input type="text" id="inventory-search" placeholder="Search by name, category, or subcategory..." style="width: 300px;">
+                        </div>
+                        <button class="btn-primary" id="add-product-btn">+ Add Product</button>
+                    </div>
                 </header>
                 <div class="inventory-table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Brand</th>
+                                <th style="width: 80px; text-align: center;">S.No</th>
                                 <th>Product Name</th>
                                 <th>Category</th>
                                 <th>Price (₹)</th>
                                 <th>Unit</th>
-                                <th>Stock</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -232,11 +239,7 @@
         <div class="modal-content">
             <h3 id="modal-title">Add New Product</h3>
             <form id="product-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Brand Name</label>
-                        <input type="text" id="prod-brand" placeholder="e.g. Tata, Aashirvaad" required>
-                    </div>
+                <div class="form-row" style="grid-template-columns: 1fr;">
                     <div class="form-group">
                         <label>Product Name</label>
                         <input type="text" id="prod-name" placeholder="e.g. Salt, Wheat" required>
@@ -245,9 +248,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Category</label>
-                        <select id="prod-category" required>
-                            <!-- Dynamically populated from inventory.js -->
-                        </select>
+                        <input type="text" id="prod-category" placeholder="e.g. Noodles, Pasta" required>
                     </div>
                     <div class="form-group">
                         <label>Price (₹)</label>
@@ -256,21 +257,15 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Stock Quantity</label>
-                        <input type="number" id="prod-stock" required>
+                        <label>Unit</label>
+                        <input type="text" id="prod-unit" list="unit-options" placeholder="e.g. Kg, pcs" required>
+                        <datalist id="unit-options">
+                            <!-- Options populated dynamically from data.js via inventory.js -->
+                        </datalist>
                     </div>
                     <div class="form-group">
-                        <label>Unit</label>
-                        <select id="prod-unit" required>
-                            <option value="kg">Kg</option>
-                            <option value="g">g</option>
-                            <option value="L">L</option>
-                            <option value="ml">ml</option>
-                            <option value="pcs">pcs</option>
-                            <option value="packet">packet</option>
-                            <option value="box">box</option>
-                            <option value="dozen">dozen</option>
-                        </select>
+                        <label>Product Icon (Emoji)</label>
+                        <input type="text" id="prod-icon" placeholder="e.g. 🍝, 🍜">
                     </div>
                 </div>
                 <div class="form-row" style="grid-template-columns: 1fr;">
