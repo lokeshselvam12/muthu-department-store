@@ -25,6 +25,21 @@ function initInventory() {
     // Form submission
     document.getElementById('product-form').onsubmit = handleProductSubmit;
 
+    // Emoji picker buttons listener
+    const emojiPicker = document.getElementById('emoji-suggestion-picker');
+    if (emojiPicker) {
+        emojiPicker.onclick = (e) => {
+            const btn = e.target.closest('.emoji-btn');
+            if (btn) {
+                const emoji = btn.getAttribute('data-emoji');
+                const iconInput = document.getElementById('prod-icon');
+                if (iconInput) {
+                    iconInput.value = emoji;
+                }
+            }
+        };
+    }
+
     // Search filter input listener
     if (searchInput) {
         searchInput.oninput = () => {

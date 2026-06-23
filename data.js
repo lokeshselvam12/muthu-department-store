@@ -12,19 +12,22 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_UNITS = [
-    'Kg', 'g', 'L', 'ml', 'pcs', 'packet', 'box', 'dozen'
+    'Kg', 'g', 'L', 'ml', 'pcs', 'pkt', 'box', 'dozen'
 ];
 
 const DEFAULT_PRODUCTS = [
 
+    // Loose Items KG
     // Rice அரிசி
     { name: 'KDR Ponni Rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 70, icon: '🌾' },
     { name: 'Red Sun Ponni Rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 65, icon: '🌾' },
     { name: 'Krishna Ponni rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 55, icon: '🌾' },
-    { name: 'Unity Biryani Rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 60, icon: '🌾' },
-    { name: 'பச்சரிசி  Pacharisi', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 40, icon: '🌾' },
-    { name: 'பச்சரிசி  Pacharisi', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 70, icon: '🌾' },
-    { name: 'சீரகச் சம்பா Seeragam Samba', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 80, icon: '🌾' },
+    { name: 'Pacharisi பச்சரிசி தரம் 1', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 70, icon: '🌾' },
+    { name: 'Pacharisi பச்சரிசி தரம் 2', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 40, icon: '🌾' },
+    { name: 'Idli Rice இட்லி அரிசி', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 40, icon: '🌾' },
+    { name: 'Seeragam Samba சீரகச் சம்பா', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 160, icon: '🌾' },
+    { name: 'Unity Biryani Rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 80, icon: '🌾' },
+    { name: 'Varsha Biryani Rice', category: 'Loose Items KG', subCategory: 'Rice அரிசி', price: 80, icon: '🌾' },
 
     // Dals பருப்பு
     { name: 'துவரம் பருப்பு தரம் 1', category: 'Loose Items KG', subCategory: 'Dals பருப்பு', price: 135, icon: '🥣' },
@@ -34,6 +37,23 @@ const DEFAULT_PRODUCTS = [
     { name: 'பாசி பருப்பு', category: 'Loose Items KG', subCategory: 'Dals பருப்பு', price: 116, icon: '🥣' },
     { name: 'பட்டாணி பருப்பு', category: 'Loose Items KG', subCategory: 'Dals பருப்பு', price: 100, icon: '🥣' },
 
+    // Pulse & Grains பருப்பு & தானியங்கள்
+    { name: 'Kambu கம்பு', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 220, icon: '🌾' },
+    { name: 'Kelvaragu கேழ்வரகு', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 105, icon: '🌾' },
+    { name: 'Mookkadalai சிறிய கருப்பு மூக்கடலை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 105, icon: '🌾' },
+    { name: 'Mookkadalai பெரிய கருப்பு மூக்கடலை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 220, icon: '🌾' },
+    { name: 'Mookkadalai சிறிய வெள்ளை மூக்கடலை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 120, icon: '🌾' },
+    { name: 'Mookkadalai பெரிய வெள்ளை மூக்கடலை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 220, icon: '🌾' },
+    { name: 'உடைத்த கடலை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Pattani பச்சை பட்டாணி', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Pattani வெள்ளை பட்டாணி', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Karamani கருப்பு காராமணி', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Karamani வெள்ளை காராமணி', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Mochai சிவப்பு மொச்சை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Mochai வெள்ளை மொச்சை', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Green Gram பச்சை பயிறு', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+    { name: 'Kollu கொள்ளு', category: 'Loose Items KG', subCategory: 'Pulse & Grains பருப்பு & தானியங்கள்', price: 130, icon: '🌾' },
+
     // Dry Chilli காய்ந்த மிளகாய் 
     { name: 'புது மிளகாய் தரம் 1', category: 'Loose Items KG', subCategory: 'Dry Chilli காய்ந்த மிளகாய்', price: 390, icon: '🌶️' },
     { name: 'புது மிளகாய் தரம் 2', category: 'Loose Items KG', subCategory: 'Dry Chilli காய்ந்த மிளகாய்', price: 200, icon: '🌶️' },
@@ -41,9 +61,9 @@ const DEFAULT_PRODUCTS = [
     { name: 'நீட்டு மிளகாய்', category: 'Loose Items KG', subCategory: 'Dry Chilli காய்ந்த மிளகாய்', price: 300, icon: '🌶️' },
 
     // Tamarind புளி
-    { name: 'Tamarind புது புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 160, icon: '🫛' },
-    { name: 'Tamarind பழைய புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 300, icon: '🫛' },
-    { name: 'Tamarind தோசை புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 300, icon: '🫛' },
+    { name: 'Tamarind புது புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 200, icon: '🫛' },
+    { name: 'Tamarind பழைய புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 160, icon: '🫛' },
+    { name: 'Tamarind தோசை புளி', category: 'Loose Items KG', subCategory: 'Tamarind புளி', price: 140, icon: '🫛' },
 
     // Garlic பூண்டு
     { name: 'Small Garlic சிறிய பூண்டு', category: 'Loose Items KG', subCategory: 'Garlic பூண்டு', price: 260, icon: '🧄' },
@@ -55,27 +75,36 @@ const DEFAULT_PRODUCTS = [
     { name: 'Wheat Flour கோதுமை மாவு', category: 'Loose Items KG', subCategory: 'Flour மாவு', price: 120, icon: '🌾' },
     { name: 'Gram Flour கடலை மாவு', category: 'Loose Items KG', subCategory: 'Flour மாவு', price: 220, icon: '🌾' },
 
-    // Pulse & Grains பருப்பு & தானியங்கள்
-    { name: 'Chickpeas சிறிய கருப்பு மூக்கடலை', category: 'Loose Items KG', subCategory: 'Chickpeas மூக்கடலை', price: 105, icon: '🌾' },
-    { name: 'Chickpeas பெரிய கருப்பு மூக்கடலை', category: 'Loose Items KG', subCategory: 'Chickpeas மூக்கடலை', price: 220, icon: '🌾' },
-    { name: 'Chickpeas சிறிய வெள்ளை மூக்கடலை', category: 'Loose Items KG', subCategory: 'Chickpeas மூக்கடலை', price: 120, icon: '🌾' },
-    { name: 'Chickpeas பெரிய வெள்ளை மூக்கடலை', category: 'Loose Items KG', subCategory: 'Chickpeas மூக்கடலை', price: 220, icon: '🌾' },
-    { name: 'உடைத்த கடலை', category: 'Loose Items KG', subCategory: 'Chickpeas மூக்கடலை', price: 130, icon: '🌾' },
-
     // Sugar & Sweetness இனிப்பு
     { name: 'Sugar சர்க்கரை', category: 'Loose Items KG', subCategory: 'Sugar & Sweeteners இனிப்பு', price: 45, icon: '🍯' },
     { name: 'Palm Jaggery பனை கருப்பட்டி', category: 'Loose Items KG', subCategory: 'Sugar & Sweeteners இனிப்பு', price: 45, icon: '🍯' },
 
     // Loose Items Grams
-    { name: 'Chickpeas சிறிய கருப்பு மூக்கடலை', category: 'Loose Items Grams', subCategory: 'Chickpeas மூக்கடலை', price: 105, icon: '🌾' },
-    { name: 'Chickpeas பெரிய கருப்பு மூக்கடலை', category: 'Loose Items Grams', subCategory: 'Chickpeas மூக்கடலை', price: 220, icon: '🌾' },
-    { name: 'Chickpeas சிறிய வெள்ளை மூக்கடலை', category: 'Loose Items Grams', subCategory: 'Chickpeas மூக்கடலை', price: 120, icon: '🌾' },
-    { name: 'Chickpeas பெரிய வெள்ளை மூக்கடலை', category: 'Loose Items Grams', subCategory: 'Chickpeas மூக்கடலை', price: 220, icon: '🌾' },
-    { name: 'உடைத்த கடலை', category: 'Loose Items Grams', subCategory: 'Chickpeas மூக்கடலை', price: 130, icon: '🌾' },
+    // Spices
+    { name: 'Milagu மிளகு', category: 'Loose Items Grams', subCategory: 'Spices', price: 880, icon: '🧂' },
+    { name: 'Jiragam சீரகம்', category: 'Loose Items Grams', subCategory: 'Spices', price: 340, icon: '🧂' },
+    { name: 'Venthayam வெந்தயம்', category: 'Loose Items Grams', subCategory: 'Spices', price: 130.50, icon: '🧂' },
+    { name: 'Kadugu கடுகு', category: 'Loose Items Grams', subCategory: 'Spices', price: 140, icon: '🧂' },
+    { name: 'Chukku சுக்கு', category: 'Loose Items Grams', subCategory: 'Spices', price: 220, icon: '🧂' },
+    { name: 'Pattai பட்டை தரம் 1', category: 'Loose Items Grams', subCategory: 'Spices', price: 160, icon: '🧂' },
+    { name: 'Pattai பட்டை தரம் 2', category: 'Loose Items Grams', subCategory: 'Spices', price: 160, icon: '🧂' },
+    { name: 'Lavangam லவங்கம்', category: 'Loose Items Grams', subCategory: 'Spices', price: 220, icon: '🧂' },
+    { name: 'Elakkai ஏலக்காய்', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
+    { name: 'Sukku சுக்கு', category: 'Loose Items Grams', subCategory: 'Spices', price: 480, icon: '🧂' },
+    { name: 'Annasi poo அன்னாசி பூ', category: 'Loose Items Grams', subCategory: 'Spices', price: 220, icon: '🧂' },
+    { name: 'Manjal மஞ்சள்', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
+    { name: 'Karuvappatta பட்டை', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
+    { name: 'Masala', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
+    { name: 'Anasippoo', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
+    { name: 'Omam', category: 'Loose Items Grams', subCategory: 'Spices', price: 130, icon: '🧂' },
 
-    // Sugar & Sweetness இனிப்பு
-    { name: 'Sugar சர்க்கரை', category: 'Loose Items Grams', subCategory: 'Sugar & Sweeteners இனிப்பு', price: 45, icon: '🍯' },
-    { name: 'Palm Jaggery பனை கருப்பட்டி', category: 'Loose Items Grams', subCategory: 'Sugar & Sweeteners இனிப்பு', price: 45, icon: '🍯' },
+    // Dry Fruits & Nuts
+    { name: 'Mundhiri முழு முந்திரி', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 940, icon: '🥜' },
+    { name: 'Mundhiri பாதி முந்திரி', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 900, icon: '🥜' },
+    { name: 'Patham பாதாம்', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 940, icon: '🥜' },
+    { name: 'Ular Dhratchai  மஞ்சள் உலர் திராட்சை', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 480, icon: '🥜' },
+    { name: 'Ular Dhratchai கருப்பு உலர் திராட்சை', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 520, icon: '🥜' },
+    { name: 'Pistha பிஸ்தா', category: 'Loose Items Grams', subCategory: 'Dry Fruits & Nuts', price: 2600, icon: '🧂' },
 
     // Rice
     { name: 'Ponni Rice (1kg)', category: 'Rice', price: 65, icon: '🍚' },
@@ -180,10 +209,6 @@ const DEFAULT_PRODUCTS = [
     { name: 'Soft Drinks', category: 'Soft Drinks', price: 120, icon: '🥤' },
     { name: 'Soft Drinks', category: 'Soft Drinks', price: 90, icon: '🥤' },
 
-    // Dry Fruits & Nuts
-    { name: 'Cashews', category: 'Dry Fruits & Nuts', price: 120, icon: '🥜' },
-    { name: 'Almonds', category: 'Dry Fruits & Nuts', price: 90, icon: '🥜' },
-
     // Eggs முட்டை
     { name: 'Eggs முட்டை', category: 'Eggs முட்டை', price: 7.40, icon: '🥚' },
 
@@ -200,6 +225,16 @@ const DEFAULT_PRODUCTS = [
     { name: 'Shampoo', category: 'Personal Care Products (Women)', price: 120, icon: '🧴' },
     { name: 'Conditioner', category: 'Personal Care Products (Women)', price: 90, icon: '🧴' },
     { name: 'Soap', category: 'Personal Care Products (Women)', price: 20, icon: '🧼' },
+
+    // Toothpaste
+    { name: 'Colgate 50g Toothpaste', category: 'Toothpaste', price: 20, icon: '🦷' },
+    { name: 'Colgate 100g Toothpaste', category: 'Toothpaste', price: 80, icon: '🦷' },
+    { name: 'Colgate 200g Toothpaste', category: 'Toothpaste', price: 220, icon: '🦷' },
+
+    // Toothbrushes
+    { name: 'Toothbrush', category: 'Toothbrushes', price: 120, icon: '🪥' },
+    { name: 'Toothbrush', category: 'Toothbrushes', price: 90, icon: '🪥' },
+    { name: 'Toothbrush', category: 'Toothbrushes', price: 20, icon: '🪥' },
 
     // Soaps
     { name: 'Soap', category: 'Soaps', price: 120, icon: '🧼' },
@@ -243,7 +278,6 @@ const DEFAULT_CATEGORIES = [
     { name: 'Loose Items KG', icon: '⚖️' },
     { name: 'Loose Items Grams', icon: '⚖️' },
     { name: 'Rice', icon: '🌾' },
-    { name: 'Pulse & Dal', icon: '🥣' },
     { name: 'Oil', icon: '🍾' },
     { name: 'Ghee', icon: '🍾' },
     { name: 'Vanaspati', icon: '🧈' },
@@ -259,11 +293,12 @@ const DEFAULT_CATEGORIES = [
     { name: 'Sauces & Ketchup', icon: '🥫' },
     { name: 'Snacks & Chips', icon: '🍪' },
     { name: 'Soft Drinks', icon: '🥤' },
-    { name: 'Dry Fruits & Nuts', icon: '🥜' },
     { name: 'Eggs', icon: '🥚' },
     { name: 'Baby Care Products', icon: '👶' },
     { name: 'Personal Care Products (Men)', icon: '🛀' },
     { name: 'Personal Care Products (Women)', icon: '💅' },
+    { name: 'Toothpaste', icon: '🦷' },
+    { name: 'Toothbrushes', icon: '🪥' },
     { name: 'Soaps', icon: '🧼' },
     { name: 'Shampoos', icon: '🧴' },
     { name: 'Detergents & Cleaners', icon: '🧻' },

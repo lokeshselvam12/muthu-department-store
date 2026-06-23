@@ -1184,4 +1184,29 @@ h1, h2, h3, .logo-icon {
     }
 }
 
+/* Emoji suggestion picker styling */
+.emoji-btn {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.emoji-btn:hover {
+    background: #e2e8f0;
+    transform: scale(1.2);
+    border-color: var(--primary);
+}
+
+.emoji-btn:active {
+    transform: scale(0.9);
+}
+
 
